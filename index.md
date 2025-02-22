@@ -3,9 +3,6 @@
 ## Video Preview
 [Video YouTube Link](https://youtu.be/_46bmIG7S_A)
 
-## GitHub Repository
-[GitHub Repository](https://github.com/york135/singing_transcription_ICASSP2021/tree/master)
-
 ## Introduction/Background
 Singing Voice Transcription (SVT) converts singing audio into musical notes by detecting onset, pitch (MIDI), and offset, with applications in music education, composition, and retrieval. Traditional models rely on supervised learning, requiring costly, large labeled datasets. Recent advancements in self-supervised learning, such as MERT [[1]](#ref1), have improved transcription accuracy by learning musical representations from large-scale unlabeled data. This project fine-tunes MERT on the manually validated MIR-ST500 dataset [[2]](#ref2), which contains 500 pop songs and 162,438 annotated notes, aiming to enhance transcription accuracy while reducing dependency on labeled data.  
 
