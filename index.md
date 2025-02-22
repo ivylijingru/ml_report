@@ -47,10 +47,10 @@ These metrics are computed using the `mir_eval` library with tolerances of 50ms 
 ## References
 
 <a id="ref1"></a>  
-[1] Y.-Z. Li et al., “MERT: Acoustic Music Understanding Model with Large-Scale Self-supervised Training,” *arXiv (Cornell University)*, May 2023, doi: [https://doi.org/10.48550/arxiv.2306.00107](https://doi.org/10.48550/arxiv.2306.00107).
+[1] Y. Li, R. Yuan, G. Zhang, Y. Ma, X. Chen, H. Yin, C. Xiao, C. Lin, A. Ragni, E. Benetos, N. Gyenge, R. Dannenberg, R. Liu, W. Chen, G. Xia, Y. Shi, W. Huang, Z. Wang, Y. Guo, and J. Fu, “MERT: Acoustic Music Understanding Model with Large-Scale Self-supervised Training,” *arXiv (Cornell University)*, May 2023, doi: [https://doi.org/10.48550/arxiv.2306.00107](https://doi.org/10.48550/arxiv.2306.00107).
 
 <a id="ref2"></a>  
-[2] J. -Y. Wang and J. -S. R. Jang, "On the Preparation and Validation of a Large-Scale Dataset of Singing Transcription," *ICASSP 2021 - 2021 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)*, Toronto, ON, Canada, 2021, pp. 276-280, doi: [10.1109/ICASSP39728.2021.9414601](https://doi.org/10.1109/ICASSP39728.2021.9414601).
+[2] J. Y. Wang and J. S. R. Jang, "On the Preparation and Validation of a Large-Scale Dataset of Singing Transcription," *ICASSP 2021 - 2021 IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)*, Toronto, ON, Canada, 2021, pp. 276-280, doi: [10.1109/ICASSP39728.2021.9414601](https://doi.org/10.1109/ICASSP39728.2021.9414601).
 
 <a id="ref3"></a>  
 [3] Y. Yamamoto, "Toward Leveraging Pre-Trained Self-Supervised Frontends for Automatic Singing Voice Understanding Tasks: Three Case Studies," *2023 Asia Pacific Signal and Information Processing Association Annual Summit and Conference (APSIPA ASC)*, Taipei, Taiwan, 2023, pp. 1745-1752, doi: [10.1109/APSIPAASC58517.2023.10317286](https://doi.org/10.1109/APSIPAASC58517.2023.10317286).
@@ -59,8 +59,41 @@ These metrics are computed using the `mir_eval` library with tolerances of 50ms 
 
 | **Name**   | **Proposal Contributions** |
 |------------|---------------------------|
-| Jingru Li    | Designed the proposal idea; developted report webpage.              |
+| Jingru Li    | Designed the proposal idea and developted report webpage              |
 | Andrew Wang   | Created Slides and filmed video               |
 | Anish Arora        | Created Slides                         |
-| ...        | ...                         |
-| ...        | ...                         |
+| Youhan Li        | Drafted and refined the proposal    |
+| Xinni Li        | Refined the proposal and developted github page |
+
+# Gantt Chart
+
+<!-- [Access the Gantt Graph here](./GanttChart_Group34.xlsx) -->
+
+| TASK TITLE                               | TASK OWNER                          | START DATE | DUE DATE | DURATION |
+|------------------------------------------|-------------------------------------|------------|----------|----------|
+| Project Team Composition                 | All                                 | 1/17/24    | 2/2/24   | 15       |
+| **Project Proposal**                      |                                     |            |          |          |
+| Introduction & Background                | Jingru Li & Youhan Li               | 2/2/24     | 2/21/24  | 19       |
+| Problem Definition                       | Jingru Li, Youhan Li & Xinni Li     | 2/2/24     | 2/21/24  | 19       |
+| Methods                                  | Jingru Li & Youhan Li               | 2/2/24     | 2/21/24  | 19       |
+| Potential Dataset                        | Jingru Li & Youhan Li               | 2/2/24     | 2/21/24  | 19       |
+| Potential Results & Discussion           | Jingru Li & Youhan Li               | 2/2/24     | 2/21/24  | 19       |
+| Video Creation & Recording               | Andrew Wang & Anish Arora           | 2/10/24    | 2/21/24  | 11       |
+| GitHub Page                              | Jingru Li & Xinni Li                | 2/10/24    | 2/21/24  | 11       |
+| **Midterm Report**                        |                                     |            |          |          |
+| Audio Resampling (16kHz)                 | Anish Arora                         | 2/22/24    | 2/24/24  | 2        |
+| Audio Slicing (5s clips)                 | Andrew Wang                         | 2/25/24    | 2/27/24  | 2        |
+| MERT Embedding Extraction                | Jingru Li                           | 2/27/24    | 2/28/24  | 1        |
+| Frozen MERT + Linear Classifier          | Youhan Li                           | 3/2/24     | 3/8/24   | 6        |
+| Unfrozen MERT Encoder Tuning             | Xinni Li                            | 3/9/24     | 3/15/24  | 6        |
+| K-means Clustering                       | Jingru Li & Youhan Li               | 3/16/24    | 3/24/24  | 8        |
+| Model Evaluation (COnPOff/COnP/COn)      | Xinni Li                            | 3/25/24    | 3/27/24  | 2        |
+| Results Visualization                    | Jingru Li & Youhan Li               | 3/28/24    | 3/30/24  | 2        |
+| Report Consolidation                     | Anish Arora & Andrew Wang           | 3/28/24    | 3/31/24  | 3        |
+| **Final Report**                          |                                     |            |          |          |
+| Baseline Comparison (EfficientNet-b0/JDCnote) | Jingru Li                     | 4/1/24     | 4/5/24   | 4        |
+| Labeled Data Efficiency Analysis         | Youhan Li                           | 4/6/24     | 4/10/24  | 4        |
+| Clustering Pattern Validation            | Xinni Li                            | 4/11/24    | 4/14/24  | 3        |
+| Model Integration & Testing              | Jingru Li & Youhan Li               | 4/15/24    | 4/17/24  | 2        |
+| Demo Video & GitHub Update               | Anish Arora & Andrew Wang           | 4/17/24    | 4/22/24  | 5        |
+| Final Report                             | All                                 | 4/18/24    | 4/23/24  | 5        |
