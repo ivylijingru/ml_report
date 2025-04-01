@@ -157,10 +157,10 @@ The following files are hosted on Google Drive due to their size:
 
 # Visualization
 Our results compared to all Singing Voice Transcrition models in **Toward Leveraging Pre-Trained Self-Supervised Frontends** [[3]]
-![output-2]([https://github.com/ivylijingru/ml_report/blob/main/output-2.png])
+![output-2](https://github.com/ivylijingru/ml_report/blob/main/output-2.png)
 
 Our results compared to just MERT
-![output]([https://github.com/ivylijingru/ml_report/blob/main/output.png])
+![output](https://github.com/ivylijingru/ml_report/blob/main/output.png)
 
 
 
