@@ -108,7 +108,7 @@ We visualize the reduced 2D embeddings, coloring the points by:
 Left: Embeddings colored by their true pitch class label
 Right: Embeddings colored by their predicted cluster assignment from KMeans
 
-![tsne_cluster_plot](https://raw.githubusercontent.com/ivylijingru/ml_report/blob/main/tsne_cluster.png)
+![tsne_cluster_plot](https://raw.githubusercontent.com/ivylijingru/ml_report/main/tsne_cluster.png)
 
 From the visual comparison:
 Several pitch classes (e.g., A, B) exhibit well-defined, isolated clusters.
@@ -156,10 +156,10 @@ The following files are hosted on Google Drive due to their size:
 
 # Visualization
 Our results compared to all Singing Voice Transcrition models in **Toward Leveraging Pre-Trained Self-Supervised Frontends** [[3]]
-![output-2](https://raw.githubusercontent.com/ivylijingru/ml_report/blob/main/output-2.png)
+![output-2](https://raw.githubusercontent.com/ivylijingru/ml_report/main/output-2.png)
 
 Our results compared to just MERT
-![output](https://raw.githubusercontent.com/ivylijingru/ml_report/blob/main/output.png)
+![output](https://raw.githubusercontent.com/ivylijingru/ml_report/main/output.png)
 
 
 
