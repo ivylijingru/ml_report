@@ -108,7 +108,7 @@ We visualize the reduced 2D embeddings, coloring the points by:
 Left: Embeddings colored by their true pitch class label
 Right: Embeddings colored by their predicted cluster assignment from KMeans
 
-![tsne_cluster_plot](https://github.gatech.edu/MLGroup34/ML_Project/assets/69870/5d856a43-5e34-42d1-b134-54abf39f9f38)
+![tsne_cluster_plot]([https://github.gatech.edu/MLGroup34/ML_Project/assets/69870/5d856a43-5e34-42d1-b134-54abf39f9f38](https://github.com/ivylijingru/ml_report/blob/main/tsne_cluster.png))
 
 
 From the visual comparison:
