@@ -1,10 +1,4 @@
-# Project Proposal
-
-## Video Preview
-[Video YouTube Link](https://youtu.be/_46bmIG7S_A)
-
-## GitHub Repository
-[GitHub Repository](https://github.com/york135/singing_transcription_ICASSP2021/tree/master)
+# Midterm Checkpoint
 
 ## Introduction/Background
 Singing Voice Transcription (SVT) converts singing audio into musical notes by detecting onset, pitch (MIDI), and offset, with applications in music education, composition, and retrieval. Traditional models rely on supervised learning, requiring costly, large labeled datasets. Recent advancements in self-supervised learning, such as MERT [[1]](#ref1), have improved transcription accuracy by learning musical representations from large-scale unlabeled data. This project fine-tunes MERT on the manually validated MIR-ST500 dataset [[2]](#ref2), which contains 500 pop songs and 162,438 annotated notes, aiming to enhance transcription accuracy while reducing dependency on labeled data.  
@@ -15,35 +9,165 @@ SVT remains challenging due to variations in vocal performance, background noise
 ## Methods
 We finetune MERT for SVT following the methodology outlined in **Toward Leveraging Pre-Trained Self-Supervised Frontends** [[3]](#ref3). This involves extracting MERT embeddings, training a lightweight classifier, and evaluating performance using standard SVT metrics such as COnPOff, COnP, and COn. Additionally, we apply K-means clustering to visualize the learned representations and assess how well MERT organizes singing voice features.
 
-### Data Preprocessing Methods
+### Data Preprocessing Methods (Supervised)
+- **Vocal Source Separation**: We started by applying a source separation model to the original MIR-ST500 audio tracks. This isolates the vocal stem from background accompaniment, allowing us to focus purely on singing voice features for downstream analysis. We applied a source separation model called [Demucs](https://github.com/facebookresearch/demucs).
 - **Audio Resampling**: All audio files are standardized to 16kHz using `librosa.resample()` to ensure uniformity in feature extraction.
 - **Audio Random Slicing**: Each song is segmented into 5-second non-overlapping clips using `torchaudio.transform.Vad()`, allowing the model to focus on smaller audio chunks and improving generalization.
 - **Embedding Extraction**: Fine-tuned MERT embeddings are extracted, providing a high-dimensional feature space that captures musical elements such as pitch and rhythm.
 
-### Machine Learning Methods
+### Machine Learning Methods (Supervised)
 - **Transformer-Based Model (MERT)**: MERT serves as a feature extractor, using its pretrained musical representations to identify pitch and onset patterns.
 - **Linear Classifier**: A fully connected layer implemented with `torch.nn.Linear` is fine-tuned on labeled onset, pitch, and offset data, predicting note sequences from the extracted embeddings. We will first freeze the parameters of the pretrained MERT model and make them learnable for the linear classifier. After several epochs, we will unfreeze the Transformer encoders and fine-tune them.
-- **Clustering Algorithm**: `sklearn.cluster.KMeans` is used to visualize MERT embeddings and explore clustering patterns in singing voice features, helping analyze how well the model distinguishes different musical elements.
 
-## (Potential) Results and Discussion
 
-### Quantitative Metrics
-To evaluate the performance of our fine-tuned MERT model for singing voice transcription, we will use the following standard SVT metrics:
 
-- **COnPOff (Correct Onset, Pitch, and Offset)**: Measures strict note accuracy by requiring correct onset, pitch, and offset predictions. This metric ensures that the transcribed notes align precisely with ground truth.
-- **COnP (Correct Onset and Pitch)**: Evaluates whether the model correctly predicts note onset and pitch, allowing some flexibility with offset detection.
-- **COn (Correct Onset)**: Focuses only on onset detection accuracy, assessing how well the model identifies when a note starts.
+## Data Preprocessing (Unsupervised)
 
-These metrics are computed using the `mir_eval` library with tolerances of 50ms for onset and offset and 50 cents for pitch.
+### 1. Vocal Source Separation  
+We started by applying a source separation model to the original MIR-ST500 audio tracks.  
+This isolates the vocal stem from background accompaniment, allowing us to focus purely on singing voice features for downstream analysis.
 
-### Project Goals
-- **Achieve High Transcription Accuracy** – Improve COnPOff, COnP, and COn scores compared to baseline models such as EfficientNet-b0 and JDCnote.
-- **Reduce Dependence on Labeled Data** – Fine-tune MERT efficiently using a smaller labeled dataset, demonstrating the effectiveness of self-supervised learning for SVT.
+### 2. Converting Ground Truth to Pitch Class Labels  
+The original label format in `mirst500-train.json` is as follows:
+"1": [[17.839583, 18.095866, 58.0], [18.129167, 18.527083, 61.0], ...]
+Each item contains:
+- **start_time (s)** – when the note begins  
+- **end_time (s)** – when the note ends  
+- **MIDI_pitch** – the pitch number (e.g., 60 = C4)
 
-### Expected Results
-- Fine-tuned MERT is expected to outperform fully supervised models in COnP and COn metrics, as self-supervised embeddings enhance feature extraction.
-- Using K-means clustering for embedding visualization may reveal distinct note-grouping patterns, validating MERT's learned musical representations.
+We convert each MIDI pitch to its **pitch class** by computing `MIDI % 12`, resulting in 12 categories:  
+**C, C#, D, D#, E, F, F#, G, G#, A, A#, B**
 
+The converted labels (without octave information) are saved in the file:  
+_**MIR_ST500_pitchclass.json**_
+
+This transformation simplifies the problem and helps us focus on pitch categories rather than exact pitches, which is more meaningful for unsupervised clustering tasks.
+
+
+### 3. Selecting a Balanced Clip for Analysis
+
+After pitch class conversion, we analyzed all clips in the dataset and selected one with:
+- Diverse pitch classes
+- A relatively balanced distribution across them
+
+We chose:  
+_**Clip ID: 172**_
+
+This clip is used as our test example for representation extraction and clustering analysis.
+
+
+### 4. Audio Loading and Resampling
+
+We load the vocal track for clip 172 using `soundfile.read()`, then resample it to 16kHz using `torchaudio.transforms.Resample()`  
+This ensures compatibility with MERT's expected input format.
+
+
+### 5. Extracting MERT Embeddings
+
+The full audio is passed into the MERT model to extract frame-level embeddings.
+
+- **Output shape:** `(T, 768)` where `T` is the number of time frames (50Hz frame rate)
+- **Saved as:**  
+  _**clip_172_full_repr.npy**_
+
+These embeddings capture musical features like pitch, onset, and timbre in a high-dimensional latent space.
+
+
+### 6. Aligning Embeddings with Pitch Class Labels
+
+Using the time-aligned annotations in _**MIR_ST500_pitchclass.json**_, we:
+- Convert time intervals to frame indices (based on 50Hz)
+- Map each frame in the MERT embedding to its corresponding pitch class
+
+
+### 7. Sampling Embeddings per Pitch Class
+
+To construct a clean and balanced dataset:
+- We randomly sample 100 frames per pitch class
+- Each pitch class maps to a NumPy array of shape `(100, 768)`
+- Saved as:
+  _**pitchclass_samples.pkl**_
+
+This file will be used in the next phase: unsupervised clustering, dimensionality reduction, visualization, and evaluation.
+
+---
+
+## Next Steps: Unsupervised Learning
+
+### 1. Dimensionality Reduction
+We’ll reduce the 768-dim vectors to 2D (e.g., using t-SNE, PCA, or UMAP) so we can visualize the data.  
+This will help us see whether embeddings from the same pitch class naturally group together.
+
+### 2. Clustering
+We applied t-SNE to reduce the original 768-dimensional MERT embeddings down to 2D for visualization.
+The goal is to check whether the learned embeddings can be automatically grouped into 12 clusters, aligning with the 12 pitch classes.
+In the 2D plot (left), we can observe visibly clustered regions corresponding to certain pitch classes, suggesting that MERT embeddings encode pitch-related structure to some degree.
+
+### 3. Visualization
+We visualize the reduced 2D embeddings, coloring the points by:
+Left: Embeddings colored by their true pitch class label
+Right: Embeddings colored by their predicted cluster assignment from KMeans
+
+![tsne_cluster_plot](https://github.com/ivylijingru/ml_report/blob/main/tsne_cluster.png)
+
+
+From the visual comparison:
+Several pitch classes (e.g., A, B) exhibit well-defined, isolated clusters.
+Some pitch classes (e.g., C#, A#) appear more entangled or split across multiple clusters.
+Certain clusters align well with pitch semantics, though overlaps and misgrouping are present.
+
+### 4. Evaluation
+We’ll compute clustering quality metrics to find how well the clustering aligns with actual pitch classes.
+The ARI of 0.44 indicates moderate agreement between predicted clusters and ground truth pitch classes.
+The NMI of 0.63 suggests that about 63% of the mutual information between embeddings and pitch class labels is preserved.
+
+If MERT embeddings cluster well by pitch class, it means the model has already captured pitch-related information without supervision.  
+This supports the idea that self-supervised models like MERT reduce the need for large labeled datasets, and still produce musically meaningful features.
+
+
+## Finetuned Model Evaluation (SVT Metrics)
+
+We evaluated the finetuned MERT model for singing voice transcription. The results are summarized below (from `svt_mert_finetune_debug_smaller_bs32_weight_498_res_reproduce.txt`):
+
+| Metric   | Precision | Recall   | F1-score |
+|----------|-----------|----------|----------|
+| COnPOff  | 0.479789  | 0.491418 | 0.484970 |
+| COnP     | 0.702347  | 0.720901 | 0.710672 |
+| COn      | 0.758610  | 0.777980 | 0.767256 |
+
+_**gt note num:** 31311.0_  
+_**tr note num:** 32015.0_
+
+These results reflect standard SVT metrics used in the community:
+- **COnPOff**: correct onset, pitch, and offset  
+- **COnP**: correct onset and pitch  
+- **COn**: correct onset
+
+
+## Large Files & Model Checkpoints
+
+The following files are hosted on Google Drive due to their size:
+
+- Audio files of clip 172: Mixture.mp3 and Vocals.wav
+- `clip_172_full_repr.npy` — full-frame MERT representation of clip 172  
+- Finetuned MERT model checkpoint and config files
+
+**Access them here:**  
+[Google Drive - MERT Finetuned Files](https://drive.google.com/drive/folders/1X1SSe9KMDvmhg-VaSxrW1zLPEeCnTdU-?usp=sharing)
+
+# Visualization
+Our results compared to all Singing Voice Transcrition models in **Toward Leveraging Pre-Trained Self-Supervised Frontends** [[3]]
+![output-2](https://github.com/ivylijingru/ml_report/blob/main/output-2.png)
+
+Our results compared to just MERT
+![output](https://github.com/ivylijingru/ml_report/blob/main/output.png)
+
+
+
+
+
+# Results & Discussion
+The results more or less match the F1-score's that were produced in **Toward Leveraging Pre-Trained Self-Supervised Frontends** [[3]](#ref3). Our F1-score for COnPOff of 0.484970 outperforms the reference paper by around 1.8% while the F1-score's for COnP and COn slightly underperformed the paper's scores by around 0.5% and 1.5% respectively. Additionally, the MERT fine tuning from the paper outperformed all other models (both SSL and conventional) on COnP and our fine-tuning similarly outperformed all other methods. Since these numbers are all around the same our fine-tuning is a very accurate replication of the paper. One of the choices that we made that could have helped these results would be the fact that we didn't care about octave the way that was done in the original paper. Since the metrics were only focused on pitch and timing we wouldn't be predicting a larger target vector than we needed. The next steps that we intend to take based on this is continue to focus on the clustering and unsupervised learning as well as trying out a different method to continue to improve on these results.
 ## References
 
 <a id="ref1"></a>  
@@ -55,15 +179,15 @@ These metrics are computed using the `mir_eval` library with tolerances of 50ms 
 <a id="ref3"></a>  
 [3] Y. Yamamoto, "Toward Leveraging Pre-Trained Self-Supervised Frontends for Automatic Singing Voice Understanding Tasks: Three Case Studies," *2023 Asia Pacific Signal and Information Processing Association Annual Summit and Conference (APSIPA ASC)*, Taipei, Taiwan, 2023, pp. 1745-1752, doi: [10.1109/APSIPAASC58517.2023.10317286](https://doi.org/10.1109/APSIPAASC58517.2023.10317286).
 
-# Proposal Contributions
+# Midterm Checkpoint Contributions
 
-| **Name**   | **Proposal Contributions** |
+| **Name**   | **Midterm Checkpoint Contributions** |
 |------------|---------------------------|
-| Jingru Li    | Designed the proposal idea and developted report webpage              |
-| Andrew Wang   | Created Slides and filmed video               |
-| Anish Arora        | Created Slides                         |
-| Youhan Li        | Drafted and refined the proposal    |
-| Xinni Li        | Refined the proposal and developted github page |
+| Jingru Li    | Transcription model training & fine-tuning, complete codebase. |
+| Andrew Wang   | Data Visualizations, File Directory README, report consolidation|
+| Anish Arora        | Results & Discussions regarding data results |
+| Youhan Li        | Data Preprocessing, Feature Extraction, Report Drafting
+| Xinni Li        | Dimensionality Reduction, Clustering, and Result Interpretation| 
 
 # Gantt Chart
 
