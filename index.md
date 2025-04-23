@@ -146,18 +146,18 @@ These results reflect standard SVT metrics used in the community:
 Although the training of MERT and its variants is self-supervised, we perform a post-hoc analysis using pitch class labels to examine whether the learned embeddings organize musically meaningful structures. Specifically, we reduce the 768-dimensional MERT embeddings to 2D using t-SNE and apply KMeans clustering (k=12). These clusters are then compared to pitch class labels (only for evaluation, not for training). The t-SNE visualizations reveal that the quality of clustering in the latent space correlates strongly with the overall performance of the models in the downstream SVT task.
 
 ### Original MERT (No Finetuning)
-![MERT](https://raw.githubusercontent.com/ivylijingru/ml_report/refs/heads/main/MERT%20%2B%20Linear%20head_tsne_clusters_Self_SL.png")
+![MERT](https://raw.githubusercontent.com/ivylijingru/ml_report/main/MERT%20%2B%20Linear%20head_tsne_clusters_Self_SL.png)
 </div>
 The original MERT model, without any fine-tuning, exhibits relatively entangled and overlapping clusters. This indicates that while self-supervised pretraining captures some pitch-relevant information, the separation of pitch classes in the embedding space is limited.
 
 ### MERT + LoRA
-![MERT_LORA](https://raw.githubusercontent.com/ivylijingru/ml_report/refs/heads/main/lora_tsne_clusters_Self_SL.png")
+![MERT_LORA](https://raw.githubusercontent.com/ivylijingru/ml_report/main/lora_tsne_clusters_Self_SL.png)
 </div>
 MERT + LoRA shows moderately improved clustering. The boundaries between pitch classes are clearer compared to the base MERT, although certain clusters still remain mixed. This matches its slight improvement in COn and COnP metrics.
 
 
 ### MERT + Linear Head (Finetuned)
-![MERT_FINETUNE](https://raw.githubusercontent.com/ivylijingru/ml_report/refs/heads/main/MERT%20%2B%20Linear%20head%20%2B%20Finetune_tsne_clusters_Self_SL.png")
+![MERT_FINETUNE](https://raw.githubusercontent.com/ivylijingru/ml_report/main/MERT%20%2B%20Linear%20head%20%2B%20Finetune_tsne_clusters_Self_SL.png)
 The MERT + Linear Head (Finetuned) model demonstrates the most distinct and compact clustering structure. Each pitch class forms a well-defined group, indicating that fine-tuning with even a simple linear head leads to more pitch-sensitive embeddings. This visually aligns with its superior performance across all metrics, especially in the challenging COnPOff task.
 
 These visual results further support the numerical findings: fine-tuning enhances not only task-specific accuracy but also the intrinsic structure of the learned representation space, making it more semantically organized by pitch.
