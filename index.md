@@ -159,22 +159,11 @@ The original MERT model, without any fine-tuning, exhibits relatively entangled 
 MERT + LoRA shows moderately improved clustering. The boundaries between pitch classes are clearer compared to the base MERT, although certain clusters still remain mixed. This matches its slight improvement in COn and COnP metrics.
 
 
-### MERT + Linear Head (Finetuned)
+### MERT + MLP Head (Finetuned)
 ![MERT_FINETUNE](https://raw.githubusercontent.com/ivylijingru/ml_report/main/MERT%20%2B%20Linear%20head%20%2B%20Finetune_tsne_clusters_Self_SL.png)
-The MERT + Linear Head (Finetuned) model demonstrates the most distinct and compact clustering structure. Each pitch class forms a well-defined group, indicating that fine-tuning with even a simple linear head leads to more pitch-sensitive embeddings. This visually aligns with its superior performance across all metrics, especially in the challenging COnPOff task.
+The MERT + MLP Head (Finetuned) model demonstrates the most distinct and compact clustering structure. Each pitch class forms a well-defined group, indicating that fine-tuning with even a simple MLP head leads to more pitch-sensitive embeddings. This visually aligns with its superior performance across all metrics, especially in the challenging COnPOff task.
 
 These visual results further support the numerical findings: fine-tuning enhances not only task-specific accuracy but also the intrinsic structure of the learned representation space, making it more semantically organized by pitch.
-
-## Large Files & Model Checkpoints
-
-The following files are hosted on Google Drive due to their size:
-
-- Audio files of clip 172: Mixture.mp3 and Vocals.wav
-- `clip_172_full_repr.npy` — full-frame MERT representation of clip 172  
-- Finetuned MERT model checkpoint and config files
-
-**Access them here:**  
-[Google Drive - MERT Finetuned Files](https://drive.google.com/drive/folders/1X1SSe9KMDvmhg-VaSxrW1zLPEeCnTdU-?usp=sharing)
 
 # Visualization
 Our results compared to all Singing Voice Transcrition models in **Toward Leveraging Pre-Trained Self-Supervised Frontends** [[3]]
@@ -204,6 +193,19 @@ We compared three models on note boundary prediction (COnPOff, COnP, COn). The f
 <a id="ref3"></a>  
 [3] Y. Yamamoto, "Toward Leveraging Pre-Trained Self-Supervised Frontends for Automatic Singing Voice Understanding Tasks: Three Case Studies," *2023 Asia Pacific Signal and Information Processing Association Annual Summit and Conference (APSIPA ASC)*, Taipei, Taiwan, 2023, pp. 1745-1752, doi: [10.1109/APSIPAASC58517.2023.10317286](https://doi.org/10.1109/APSIPAASC58517.2023.10317286).
 
+
+## Large Files & Model Checkpoints
+
+The following files are hosted on Google Drive due to their size:
+
+- Audio files of clip 172: Mixture.mp3 and Vocals.wav
+- `clip_172_full_repr.npy` — full-frame MERT representation of clip 172  
+- Finetuned MERT model checkpoint and config files
+
+**Access them here:**  
+[Google Drive - MERT Finetuned Files](https://drive.google.com/drive/folders/1X1SSe9KMDvmhg-VaSxrW1zLPEeCnTdU-?usp=sharing)
+
+
 # Final Checkpoint Contributions
 
 | **Name**   | **Final Checkpoint Contributions** |
@@ -216,10 +218,5 @@ We compared three models on note boundary prediction (COnPOff, COnP, COn). The f
 
 # Gantt Chart
 
-[Access the Gantt Graph here](./GanttChart_Group34.xlsx
-)
+[Access the Gantt Graph here](./GanttChart_Group34.xlsx)
 
-# Gantt Chart
-
-[Access the Gantt Graph here](./GanttChart_Group34.xlsx
-)
