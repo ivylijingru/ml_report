@@ -1,33 +1,24 @@
 # Final Report
 
 ## Introduction/Background
+
 Singing Voice Transcription (SVT) converts singing audio into musical notes by detecting onset, pitch (MIDI), and offset, with applications in music education, composition, and retrieval. Traditional models rely on supervised learning, requiring costly, large labeled datasets. Recent advancements in self-supervised learning, such as MERT [[1]](#ref1), have improved transcription accuracy by learning musical representations from large-scale unlabeled data. This project fine-tunes MERT on the manually validated MIR-ST500 dataset [[2]](#ref2), which contains 500 pop songs and 162,438 annotated notes, aiming to enhance transcription accuracy while reducing dependency on labeled data.  
 
 ## Problem Definition
+
 SVT remains challenging due to variations in vocal performance, background noise, and the need for large, costly labeled datasets, as many supervised models struggle with generalization. To address this, we propose fine-tuning MERT to leverage pre-trained musical representations, improving feature extraction and transcription accuracy. This approach reduces the reliance on large annotated datasets, making the solution more scalable and efficient.
 
-## Methods
-We finetune MERT for SVT following the methodology outlined in **Toward Leveraging Pre-Trained Self-Supervised Frontends** [[3]](#ref3). This involves extracting MERT embeddings, training a lightweight classifier, and evaluating performance using standard SVT metrics such as COnPOff, COnP, and COn. Additionally, we apply K-means clustering to visualize the learned representations and assess how well MERT organizes singing voice features.
+## Data Preprocessing
 
-### Data Preprocessing Methods (Supervised)
-- **Vocal Source Separation**: We started by applying a source separation model to the original MIR-ST500 audio tracks. This isolates the vocal stem from background accompaniment, allowing us to focus purely on singing voice features for downstream analysis. We applied a source separation model called [Demucs](https://github.com/facebookresearch/demucs).
-- **Audio Resampling**: All audio files are standardized to 16kHz using `librosa.resample()` to ensure uniformity in feature extraction.
-- **Audio Random Slicing**: Each song is segmented into 5-second non-overlapping clips using `torchaudio.transform.Vad()`, allowing the model to focus on smaller audio chunks and improving generalization.
-- **Embedding Extraction**: Fine-tuned MERT embeddings are extracted, providing a high-dimensional feature space that captures musical elements such as pitch and rhythm.
-
-### Machine Learning Methods (Supervised)
-- **Transformer-Based Model (MERT)**: MERT serves as a feature extractor, using its pretrained musical representations to identify pitch and onset patterns.
-- **Linear Classifier**: A fully connected layer implemented with `torch.nn.Linear` is fine-tuned on labeled onset, pitch, and offset data, predicting note sequences from the extracted embeddings. We will first freeze the parameters of the pretrained MERT model and make them learnable for the linear classifier. After several epochs, we will unfreeze the Transformer encoders and fine-tune them.
-
-
-
-## Data Preprocessing (Unsupervised)
+To prepare MIR-ST500 audio and label data for both supervised and unsupervised tasks, we applied the following steps:
 
 ### 1. Vocal Source Separation  
+
 We started by applying a source separation model to the original MIR-ST500 audio tracks.  
 This isolates the vocal stem from background accompaniment, allowing us to focus purely on singing voice features for downstream analysis.
 
-### 2. Converting Ground Truth to Pitch Class Labels  
+### 2. Converting Ground Truth to Pitch Class Labels 
+
 The original label format in `mirst500-train.json` is as follows:
 "1": [[17.839583, 18.095866, 58.0], [18.129167, 18.527083, 61.0], ...]
 Each item contains:
@@ -90,20 +81,32 @@ To construct a clean and balanced dataset:
 
 This file will be used in the next phase: unsupervised clustering, dimensionality reduction, visualization, and evaluation.
 
----
 
-## Next Steps: Unsupervised Learning
+## Methods
 
-### 1. Dimensionality Reduction
+We finetune MERT for SVT following the methodology outlined in **Toward Leveraging Pre-Trained Self-Supervised Frontends** [[3]](#ref3). This involves extracting MERT embeddings, training a lightweight classifier, and evaluating performance using standard SVT metrics such as COnPOff, COnP, and COn. Additionally, we apply K-means clustering to visualize the learned representations and assess how well MERT organizes singing voice features.
+
+### Machine Learning Methods (Supervised)
+
+#### 1. Frozen MERT + MLP Head (Baseline)
+We use MERT (Music Embedding Representations Transformer) as a frozen feature extractor. Its pretrained Transformer layers are kept fixed, and only a multi-layer perceptron (MLP) head is trained on top. The MLP takes the 768-dimensional MERT embeddings as input and predicts note-level attributes including pitch, onset, and offset. This setup serves as a baseline to evaluate how well MERT’s pretrained representations transfer to the singing voice transcription task without further adaptation.
+#### 2. Fine-Tuned MERT + MLP Head
+In this setting, we initialize training with MERT frozen and only train the MLP head. After several epochs, we unfreeze the MERT Transformer layers and jointly fine-tune them with the MLP head. This allows the model to adapt internal representations to the MIR-ST500 dataset. The fine-tuning process follows a progressive unfreezing strategy to stabilize training and reduce overfitting in earlier layers.
+#### 3. Fine-Tuned MERT + LoRA + MLP Head
+To improve training efficiency and reduce the number of trainable parameters, we apply Low-Rank Adaptation (LoRA) to the MERT model. Instead of updating all weights, LoRA injects trainable low-rank matrices into the self-attention and feedforward layers. The original pretrained weights remain frozen, and only the LoRA parameters and MLP head are optimized. This approach achieves a balance between performance and computational cost, making it suitable for limited-resource scenarios.
+
+### Unsupervised embedding anaylsis
+
+#### 1. Dimensionality Reduction
 We’ll reduce the 768-dim vectors to 2D (e.g., using t-SNE, PCA, or UMAP) so we can visualize the data.  
 This will help us see whether embeddings from the same pitch class naturally group together.
 
-### 2. Clustering
+#### 2. Clustering
 We applied t-SNE to reduce the original 768-dimensional MERT embeddings down to 2D for visualization.
 The goal is to check whether the learned embeddings can be automatically grouped into 12 clusters, aligning with the 12 pitch classes.
 In the 2D plot (left), we can observe visibly clustered regions corresponding to certain pitch classes, suggesting that MERT embeddings encode pitch-related structure to some degree.
 
-### 3. Visualization
+#### 3. Visualization
 We visualize the reduced 2D embeddings, coloring the points by:
 Left: Embeddings colored by their true pitch class label
 Right: Embeddings colored by their predicted cluster assignment from KMeans
@@ -115,7 +118,7 @@ Several pitch classes (e.g., A, B) exhibit well-defined, isolated clusters.
 Some pitch classes (e.g., C#, A#) appear more entangled or split across multiple clusters.
 Certain clusters align well with pitch semantics, though overlaps and misgrouping are present.
 
-### 4. Evaluation
+#### 4. Evaluation
 We’ll compute clustering quality metrics to find how well the clustering aligns with actual pitch classes.
 The ARI of 0.44 indicates moderate agreement between predicted clusters and ground truth pitch classes.
 The NMI of 0.63 suggests that about 63% of the mutual information between embeddings and pitch class labels is preserved.
@@ -208,8 +211,13 @@ We compared three models on note boundary prediction (COnPOff, COnP, COn). The f
 | Jingru Li    |Trained the three models; update github page. |
 | Andrew Wang   |Created slides and gave presentation|
 | Anish Arora        |Prepared report Results and Discussion |
-| Youhan Li        |Processed representation data, extracted features and edited clides |
+| Youhan Li        |Processed representation data, extracted features and edited slides and report|
 | Xinni Li        |Worked on the post-hoc visualization and analysis. | 
+
+# Gantt Chart
+
+[Access the Gantt Graph here](./GanttChart_Group34.xlsx
+)
 
 # Gantt Chart
 
