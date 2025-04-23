@@ -205,11 +205,11 @@ We compared three models on note boundary prediction (COnPOff, COnP, COn). The f
 
 | **Name**   | **Final Checkpoint Contributions** |
 |------------|---------------------------|
-| Jingru Li    | |
+| Jingru Li    |Trained the three models; update github page. |
 | Andrew Wang   |Created slides and gave presentation|
 | Anish Arora        |Prepared report Results and Discussion |
 | Youhan Li        |Processed representation data, extracted features and edited clides |
-| Xinni Li        | | 
+| Xinni Li        |Worked on the post-hoc visualization and analysis. | 
 
 # Gantt Chart
 
