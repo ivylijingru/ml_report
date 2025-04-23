@@ -1,4 +1,4 @@
-# Midterm Checkpoint
+# Final Report
 
 ## Introduction/Background
 Singing Voice Transcription (SVT) converts singing audio into musical notes by detecting onset, pitch (MIDI), and offset, with applications in music education, composition, and retrieval. Traditional models rely on supervised learning, requiring costly, large labeled datasets. Recent advancements in self-supervised learning, such as MERT [[1]](#ref1), have improved transcription accuracy by learning musical representations from large-scale unlabeled data. This project fine-tunes MERT on the manually validated MIR-ST500 dataset [[2]](#ref2), which contains 500 pop songs and 162,438 annotated notes, aiming to enhance transcription accuracy while reducing dependency on labeled data.  
@@ -142,6 +142,32 @@ These results reflect standard SVT metrics used in the community:
 - **COnP**: correct onset and pitch  
 - **COn**: correct onset
 
+## Post-hoc Analysis of Self-Supervised Embeddings via Dimensionality Reduction & Clustering
+Although the training of MERT and its variants is self-supervised, we perform a post-hoc analysis using pitch class labels to examine whether the learned embeddings organize musically meaningful structures. Specifically, we reduce the 768-dimensional MERT embeddings to 2D using t-SNE and apply KMeans clustering (k=12). These clusters are then compared to pitch class labels (only for evaluation, not for training). The t-SNE visualizations reveal that the quality of clustering in the latent space correlates strongly with the overall performance of the models in the downstream SVT task.
+
+### Original MERT (No Finetuning)
+<h4 align="center">Original MERT (No Finetuning)</h4>
+<div align="center">
+  <img src="https://github.gatech.edu/MLGroup34/ML_Project/blob/main/output/self_supervised/MERT%20%2B%20Linear%20head_tsne_clusters_Self_SL.png" width="500"/>
+</div>
+The original MERT model, without any fine-tuning, exhibits relatively entangled and overlapping clusters. This indicates that while self-supervised pretraining captures some pitch-relevant information, the separation of pitch classes in the embedding space is limited.
+
+### MERT + LoRA
+<h4 align="center">MERT + LoRA</h4>
+<div align="center">
+  <img src="https://github.gatech.edu/MLGroup34/ML_Project/blob/main/output/self_supervised/lora_tsne_clusters_Self_SL.png" width="500"/>
+</div>
+MERT + LoRA shows moderately improved clustering. The boundaries between pitch classes are clearer compared to the base MERT, although certain clusters still remain mixed. This matches its slight improvement in COn and COnP metrics.
+
+
+### MERT + Linear Head (Finetuned)
+<h4 align="center">MERT + Linear Head (Finetuned)</h4>
+<div align="center">
+  <img src="https://github.gatech.edu/MLGroup34/ML_Project/blob/main/output/self_supervised/MERT%20%2B%20Linear%20head%20%2B%20Finetune_tsne_clusters_Self_SL.png" width="500"/>
+</div>
+The MERT + Linear Head (Finetuned) model demonstrates the most distinct and compact clustering structure. Each pitch class forms a well-defined group, indicating that fine-tuning with even a simple linear head leads to more pitch-sensitive embeddings. This visually aligns with its superior performance across all metrics, especially in the challenging COnPOff task.
+
+These visual results further support the numerical findings: fine-tuning enhances not only task-specific accuracy but also the intrinsic structure of the learned representation space, making it more semantically organized by pitch.
 
 ## Large Files & Model Checkpoints
 
@@ -161,12 +187,16 @@ Our results compared to all Singing Voice Transcrition models in **Toward Levera
 Our results compared to just MERT
 ![output](https://raw.githubusercontent.com/ivylijingru/ml_report/main/output.png)
 
+Comparison between MERT + Linear head, MERT + LoRA, MERT
+![comparison](https://raw.githubusercontent.com/ivylijingru/ml_report/main/Comparison.png)
 
-
+As we can see in the image above the models all performed quite well based on F1 score, recall, and precision on COn. They then performed slightly worse on COnP and quite poorly on COnPOff. Further, we observed that the MERT + Linear head significantly outperformed both MERT and MERT + LoRA on all 9 possible fields with the outperformance especially notable in the most difficult task of COnPOff. Finally, MERT + LoRA outperformed MERT on both COn and COnP but was worse on COnPOff. Note that we can compare across recall, F1 and precision freely in this situation since all 3 of those had the same relative ordering of the models meaning that none of the algorithms were biased toward one type of prediction. 
 
 
 # Results & Discussion
 The results more or less match the F1-score's that were produced in **Toward Leveraging Pre-Trained Self-Supervised Frontends** [[3]](#ref3). Our F1-score for COnPOff of 0.484970 outperforms the reference paper by around 1.8% while the F1-score's for COnP and COn slightly underperformed the paper's scores by around 0.5% and 1.5% respectively. Additionally, the MERT fine tuning from the paper outperformed all other models (both SSL and conventional) on COnP and our fine-tuning similarly outperformed all other methods. Since these numbers are all around the same our fine-tuning is a very accurate replication of the paper. One of the choices that we made that could have helped these results would be the fact that we didn't care about octave the way that was done in the original paper. Since the metrics were only focused on pitch and timing we wouldn't be predicting a larger target vector than we needed. The next steps that we intend to take based on this is continue to focus on the clustering and unsupervised learning as well as trying out a different method to continue to improve on these results.
+We compared three models on note boundary prediction (COnPOff, COnP, COn). The first model was MERT + Linear head (finetuned) which achieved the best overall performance, especially on the most challenging COnPOff metric. Next,	MERT + LoRA (finetuned) came second, with relatively strong recall. Finally, original MERT (no finetuning) performed the worst, showing that task-specific adaptation is necessary. All models performed best on COn, suggesting that detecting note onsets is easier than predicting full note boundaries. We conclude that finetuning significantly improves MERT’s performance, and the simple linear head outperforms LoRA in this task.
+
 ## References
 
 <a id="ref1"></a>  
@@ -178,18 +208,17 @@ The results more or less match the F1-score's that were produced in **Toward Lev
 <a id="ref3"></a>  
 [3] Y. Yamamoto, "Toward Leveraging Pre-Trained Self-Supervised Frontends for Automatic Singing Voice Understanding Tasks: Three Case Studies," *2023 Asia Pacific Signal and Information Processing Association Annual Summit and Conference (APSIPA ASC)*, Taipei, Taiwan, 2023, pp. 1745-1752, doi: [10.1109/APSIPAASC58517.2023.10317286](https://doi.org/10.1109/APSIPAASC58517.2023.10317286).
 
-# Midterm Checkpoint Contributions
+# Final Checkpoint Contributions
 
-| **Name**   | **Midterm Checkpoint Contributions** |
+| **Name**   | **Final Checkpoint Contributions** |
 |------------|---------------------------|
-| Jingru Li    | Transcription model training & fine-tuning, complete codebase. |
-| Andrew Wang   | Data Visualizations, File Directory README, report consolidation|
-| Anish Arora        | Results & Discussions regarding data results |
-| Youhan Li        | Data Preprocessing, Feature Extraction, Report Drafting
-| Xinni Li        | Dimensionality Reduction, Clustering, and Result Interpretation| 
+| Jingru Li    | |
+| Andrew Wang   |Created slides and gave presentation|
+| Anish Arora        |Prepared report Results and Discussion |
+| Youhan Li        |Processed representation data, extracted features and edited clides |
+| Xinni Li        | | 
 
 # Gantt Chart
 
 [Access the Gantt Graph here](./GanttChart_Group34.xlsx
 )
-
